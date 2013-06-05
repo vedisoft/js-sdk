@@ -14,12 +14,6 @@
     function parseXml(a){var b=null;if(window.DOMParser)try{b=(new DOMParser).parseFromString(a,"text/xml")}catch(c){b=null}else if(window.ActiveXObject)try{b=new ActiveXObject("Microsoft.XMLDOM"),b.async=!1,b.loadXML(a)||(b=null)}catch(d){b=null}return b}
 
     /**
-     * Generate rfc4122 version 4 compliant guid
-     * @link http://stackoverflow.com/a/2117523
-     */
-    function getGuid(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(a){var b=0|16*Math.random(),c="x"===a?b:8|3&b;return c.toString(16)})}
-
-    /**
      * atob and btoa shim
      * Copyright (C) 1999 Masanao Izumo <iz@onicos.co.jp>
      * Version: 1.0
@@ -91,9 +85,9 @@
 
         this.connect = function (params) {
             var connection_url = params.host
-                                 + '?CID=' + params.client_id
+                                 + '?CID=' + (params.client_id || 0)
                                  + '&CT=' + params.client_type
-                                 + '&GID=' + getGuid(user_phone);
+                                 + '&GID=' + user_phone;
 
             use_ssl = params.host.indexOf('wss') === 0;
 
