@@ -1,6 +1,6 @@
 /*jslint browser: true*/
-/*global WebSocket, DOMParser, ActiveXObject*/
-(function () {
+/*global WebSocket, DOMParser, ActiveXObject, jQuery*/
+(function ($) {
     "use strict";
 
     var ProstieZvonki, prostiezvonki, pz, Event, Message;
@@ -76,20 +76,40 @@
     ProstieZvonki = function () {
         var user_phone = '',
             websocket  = null,
+            host       = null,
             use_ssl    = false,
             callbacks  = {};
+
+        function normalizeHost(host) {
+            var defaults = {
+                port: '10150',
+                prefix: 'wss'
+            };
+
+            if (host.match(/:\d+$/) === null) {
+                host = host + ':' + defaults.port;
+            }
+
+            if (host.match(/^wss?p?:\/\//) === null) {
+                host = defaults.prefix + '://' + host;
+            }
+
+            return host;
+        }
 
         this.setUserPhone = function (phone) {
             user_phone = phone;
         };
 
         this.connect = function (params) {
-            var connection_url = params.host
+            host    = normalizeHost(params.host);
+            use_ssl = host.indexOf('wss') === 0;
+
+            var connection_url = host
                                  + '?CID=' + (params.client_id || 0)
                                  + '&CT=' + params.client_type
                                  + '&GID=' + user_phone;
 
-            use_ssl = params.host.indexOf('wss') === 0;
 
             websocket = new WebSocket(connection_url);
 
@@ -108,7 +128,7 @@
             websocket.onmessage = function (e) {
                 var i, message, events;
 
-                if (typeof (e.data) === 'undefined') {
+                if (e.data === undefined) {
                     return false;
                 }
 
@@ -130,7 +150,7 @@
         this.isConnected = function () {
             return websocket && websocket.readyState === 1;
         };
- 
+
         this.onConnect = function (callback) {
             callbacks.onConnect = callback;
         };
@@ -149,7 +169,7 @@
                 '<From>' + user_phone + '</From><To>' + number + '</To>',
                 use_ssl
             ));
-        }
+        };
 
         this.transfer = function (call_id, number) {
             number = number || 0;
@@ -159,10 +179,10 @@
                 '<CallID>' + call_id + '</CallID><To>' + user_phone + '</To>',
                 use_ssl
             ));
-        }
+        };
     };
 
     prostiezvonki = window.prostiezvonki = new ProstieZvonki();
 
     pz = window.pz = prostiezvonki;
-}());
+}(jQuery));
