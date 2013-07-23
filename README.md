@@ -22,7 +22,7 @@ pz.setUserPhone(
 pz.connect({
     host: 'ws://localhost:10150', // Адрес сервера
     client_id: 'password',        // Пароль
-    client_type: 'tinycrm'        // Тип приложения
+    client_type: 'jsapi'        // Тип приложения
 });
 ```
 
