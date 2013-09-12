@@ -3,7 +3,7 @@
 (function ($) {
     "use strict";
 
-    var ProstieZvonki, prostiezvonki, pz, Event, Message;
+    var ProstieZvonki, Event, Message;
 
     /**
      * Parse xml string to xml document
@@ -195,7 +195,5 @@
         };
     };
 
-    prostiezvonki = window.prostiezvonki = new ProstieZvonki();
-
-    pz = window.pz = prostiezvonki;
+    window.pz = window.prostiezvonki = new ProstieZvonki();
 }(jQuery));
