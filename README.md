@@ -111,7 +111,7 @@ Event
 event.isTransfer() // входящий запрос на переадресацию?
 event.isIncoming() // входящий вызов на менеджера?
 event.isHistory()  // завершенный вызов?
-event.isOutcoming()  // исходящий вызов вызов?
+event.isOutcoming()  // исходящий вызов?
 event.isOutcomingAnswer()  // клиент поднял трубку?
 event.isIncomingAnswer()  // менеджер поднял трубку?
 ```
