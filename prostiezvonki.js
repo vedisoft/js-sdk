@@ -39,6 +39,18 @@
         return this.type === '4';
     };
 
+    Event.prototype.isOutcoming = function () {
+        return this.type === '21';
+    };
+
+    Event.prototype.isOutcomingAnswer = function () {
+        return this.type === '22';
+    };
+
+    Event.prototype.isIncomingAnswer = function () {
+        return this.type === '23';
+    };
+
     Message = function (string, use_ssl) {
         if (!use_ssl) {
             string = atob(string);
