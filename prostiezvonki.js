@@ -114,8 +114,14 @@
             return btoa(password || '');
         }
 
-        this.version = '1.0.0';
+        this.version = '1.0.1';
 
+        /**
+         * Set user phone
+         * 
+         * @deprecated user phone should be set via params in connect method
+         * @param string phone
+         */
         this.setUserPhone = function (phone) {
             user_phone = phone;
         };
@@ -130,6 +136,8 @@
                     text: 'Password exceeds max length of ' + max_password_length
                 };
             }
+
+            user_phone = params.user_phone || user_phone;
 
             var connection_url = host
                                  + '?CID=' + normalizePassword(params.client_id)
