@@ -114,7 +114,7 @@
             return btoa(password || '');
         }
 
-        this.version = '1.0.1';
+        this.version = '1.0.2';
 
         /**
          * Set user phone
@@ -145,6 +145,7 @@
                                  + '&GID=' + user_phone
                                  + '&PhoneNumber=' + user_phone
                                  + '&BroadcastEventsMask=0'
+                                 + '&BroadcastGroup=' + (params.broadcast_group || '')
                                  + '&PzProtocolVersion=1';
 
             websocket = new WebSocket(connection_url);
