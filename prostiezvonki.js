@@ -114,6 +114,8 @@
             return btoa(password || '');
         }
 
+        this.version = '1.0.0';
+
         this.setUserPhone = function (phone) {
             user_phone = phone;
         };
@@ -132,7 +134,10 @@
             var connection_url = host
                                  + '?CID=' + normalizePassword(params.client_id)
                                  + '&CT=' + params.client_type
-                                 + '&GID=' + user_phone;
+                                 + '&GID=' + user_phone
+                                 + '&PhoneNumber=' + user_phone
+                                 + '&BroadcastEventsMask=0'
+                                 + '&PzProtocolVersion=1';
 
             websocket = new WebSocket(connection_url);
 
