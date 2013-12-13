@@ -40,15 +40,15 @@
     };
 
     Event.prototype.isOutcoming = function () {
-        return this.type === '21';
+        return this.type === '8';
     };
 
     Event.prototype.isOutcomingAnswer = function () {
-        return this.type === '22';
+        return this.type === '16';
     };
 
     Event.prototype.isIncomingAnswer = function () {
-        return this.type === '23';
+        return this.type === '32';
     };
 
     Message = function (string, use_ssl) {
