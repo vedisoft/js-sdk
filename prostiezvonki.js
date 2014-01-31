@@ -96,7 +96,7 @@
         function normalizeHost(host) {
             var defaults = {
                 port: '10150',
-                prefix: 'wss'
+                prefix: 'ws'
             };
 
             if (host.match(/:\d+$/) === null) {
