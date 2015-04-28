@@ -56,6 +56,7 @@
             string = atob(string);
         }
 
+        string = string.split("\0").shift().trim();
         this.body = $(parseXml(string));
     };
 
