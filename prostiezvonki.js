@@ -51,6 +51,14 @@
         return this.type === '32';
     };
 
+    Event.prototype.isSmsSent = function() {
+        return this.type === '128';
+    };
+
+    Event.prototype.isSmsStatus = function() {
+        return this.type === '256';
+    };
+
     Message = function (string, use_ssl) {
         if (!use_ssl) {
             string = atob(string);
@@ -94,6 +102,21 @@
             callbacks  = {},
             max_password_length = 32;
 
+        /**
+         * Application on disconnect event codes.
+         */
+        this.APPLICATION_ERRORS = {
+            4001: { ru: "Ошибка проверки лицензионного ключа (4001)" },
+            4002: { ru: "Лицензионный ключ недействителен (4002)" },
+            4003: { ru: "Истек срок использования лицензионного ключа (4003)" },
+            4004: { ru: "Лицензионный ключ не подходит для этого типа АТС-коннектора (4004)" },
+            4005: { ru: "Лицензионный ключ не подходит для этой версии АТС-коннектора (4005)" },
+            4006: { ru: "Нет лицензии на подключение этой CRM системы (4006)" },
+            4007: { ru: "Превышено максимальное допустимое количество пользователей (4007)" },
+            4008: { ru: "Ошибка авторизации (4008)" },
+            4009: { ru: "Соединение прервано из-за подключения пользователя с таким же добавочным номером (4009)" }
+        };
+
         function normalizeHost(host) {
             var defaults = {
                 port: '10150',
@@ -115,11 +138,11 @@
             return btoa(password || '');
         }
 
-        this.version = '1.0.2';
+        this.version = '1.6.3';
 
         /**
          * Set user phone
-         * 
+         *
          * @deprecated user phone should be set via params in connect method
          * @param string phone
          */
@@ -141,29 +164,48 @@
             user_phone = params.user_phone || user_phone;
 
             var connection_url = host
-                                 + '?CID=' + normalizePassword(params.client_id)
-                                 + '&CT=' + params.client_type
-                                 + '&GID=' + user_phone
-                                 + '&PhoneNumber=' + user_phone
-                                 + '&BroadcastEventsMask=0'
-                                 + '&BroadcastGroup=' + (params.broadcast_group || '')
-                                 + '&PzProtocolVersion=1';
+                + '?CID=' + normalizePassword(params.client_id)
+                + '&CT=' + params.client_type
+                + '&GID=' + user_phone
+                + '&PhoneNumber=' + user_phone
+                + '&BroadcastEventsMask=0'
+                + '&BroadcastGroup=' + (params.broadcast_group || '')
+                + '&PzProtocolVersion=2';
 
             websocket = new WebSocket(connection_url);
 
             websocket.onopen = function (e) {
+                if (this !== websocket)
+                    return;
+
                 if (callbacks.onConnect && typeof callbacks.onConnect === 'function') {
                     callbacks.onConnect(e);
                 }
             };
 
             websocket.onclose = function (e) {
+                if (this !== websocket)
+                    return;
+
                 if (callbacks.onDisconnect && typeof callbacks.onDisconnect === 'function') {
                     callbacks.onDisconnect(e);
                 }
             };
 
+            websocket.onerror = function(e) {
+                if (this !== websocket)
+                    return;
+
+                console.log(e);
+                if (callbacks.onError && typeof callbacks.onError === 'function') {
+                    callbacks.onError(e);
+                }
+            };
+
             websocket.onmessage = function (e) {
+                if (this !== websocket)
+                    return;
+
                 var i, message, events;
 
                 if (e.data === undefined) {
@@ -187,6 +229,7 @@
 
         this.disconnect = function () {
             websocket && websocket.close();
+            websocket = null;
         };
 
         this.isConnected = function () {
@@ -201,11 +244,18 @@
             callbacks.onDisconnect = callback;
         };
 
+        this.onError = function(callback) {
+            callbacks.onError = callback;
+        };
+
         this.onEvent = function (callback) {
             callbacks.onEvent = callback;
         };
 
         this.call = function (number) {
+            if (!websocket)
+                return;
+
             websocket.send(Message.prepareRequest(
                 'Call',
                 '<From>' + user_phone + '</From><To>' + number + '</To>',
@@ -213,7 +263,21 @@
             ));
         };
 
+        this.sms = function(number, base64Text) {
+            if (!websocket)
+                return;
+
+            websocket.send(Message.prepareRequest(
+                'Generate',
+                '<Event>128</Event><From>' + user_phone + '</From><To>' + number + '</To><Smstext>' + base64Text + '</Smstext>',
+                use_ssl
+            ));
+        };
+
         this.transfer = function (call_id, number) {
+            if (!websocket)
+                return;
+
             websocket.send(Message.prepareRequest(
                 'Transfer',
                 '<CallID>' + call_id + '</CallID><To>' + (number || '') + '</To>',
